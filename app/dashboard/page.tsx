@@ -4,12 +4,32 @@ import { useSession, signOut } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useForm, SubmitHandler } from "react-hook-form"
+
+type FormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: string;
+  phone: string;
+  address: string;
+};
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { isSubmitting },
+  } = useForm<FormData>();
+
+  const allFields = watch();
+  const areAllFieldsEmpty = Object.values(allFields).every((value) => !value);
 
   useEffect(() => {
+    console.log('Session:', session);
     if (status !== 'loading') {
       setIsLoading(false);
       if (!session) {
@@ -17,6 +37,11 @@ export default function DashboardPage() {
       }
     }
   }, [status, session]);
+
+  const onSubmit = (data: FormData) => {
+    console.log('Form submitted:', data);
+    alert('Form submitted!');
+  };
 
   if (isLoading) {
     return (
@@ -53,11 +78,63 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="text-center">
-          <p className="text-gray-700 mb-4">
-            DASHBOARD
-          </p>
+        <h2 className="text-xl font-semibold text-center mb-2">
+          Go High Level Form
+        </h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input
+            type="text"
+            placeholder="First Name"
+            {...register('firstName')}
+            className="w-full px-4 py-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="Last Name"
+            {...register('lastName')}
+            className="w-full px-4 py-2 border rounded"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            {...register('email')}
+            className="w-full px-4 py-2 border rounded"
+          />
+          <select
+            {...register('gender')}
+            className="w-full px-4 py-2 border rounded"
+          >
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            {...register('phone')}
+            className="w-full px-4 py-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="Address"
+            {...register('address')}
+            className="w-full px-4 py-2 border rounded"
+          />
+          <button
+            type="submit"
+            disabled={areAllFieldsEmpty || isSubmitting}
+            className={`w-full px-4 py-2 text-white rounded transition ${
+              areAllFieldsEmpty || isSubmitting
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-green-600 hover:bg-green-700 cursor-pointer'
+            }`}
+          >
+            Submit
+          </button>
+        </form>
 
+        <div className="text-center mt-4">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"

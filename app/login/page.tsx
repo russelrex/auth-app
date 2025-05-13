@@ -3,18 +3,67 @@
 import { signIn, useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '../utils/config';
 
 export default function LoginPage() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSignInEmailPassword, setIsSignInEmailPassword] = useState<boolean>(false);
   const [isRegister, setIsRegister] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+
+  const [registerData, setRegisterData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+
+  const [registerError, setRegisterError] = useState('');
+  const [registerSuccess, setRegisterSuccess] = useState('');
 
   useEffect(() => {
     if (status !== 'loading') {
       setIsLoading(false);
     }
   }, [status]);
+
+  const handleRegister = async () => {
+    setRegisterError('');
+    setRegisterSuccess('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Registration failed');
+      }
+
+      setRegisterSuccess('Registration successful! You can now sign in.');
+      setIsRegister(true);
+    } catch (err: any) {
+      setRegisterError(err.message);
+    }
+  };
+
+  const handleCredentialsLogin = async () => {
+    const res = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+      callbackUrl: '/dashboard',
+    });
+
+    if (res?.ok) router.push(res.url || '/dashboard');
+    else alert('Login failed');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -60,17 +109,19 @@ export default function LoginPage() {
             <input
               type="email"
               placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded"
             />
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded"
             />
             <button
-              onClick={() =>
-                signIn('credentials', { callbackUrl: '/dashboard' })
-              }
+              onClick={handleCredentialsLogin}
               className="cursor-pointer w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
             >
               Sign in
@@ -91,28 +142,41 @@ export default function LoginPage() {
               type="text"
               placeholder="First Name"
               className="w-full px-4 py-2 border rounded"
+              value={registerData.firstName}
+              onChange={(e) => setRegisterData({ ...registerData, firstName: e.target.value })}
             />
             <input
               type="text"
               placeholder="Last Name"
               className="w-full px-4 py-2 border rounded"
+              value={registerData.lastName}
+              onChange={(e) => setRegisterData({ ...registerData, lastName: e.target.value })}
             />
             <input
               type="email"
               placeholder="Email"
               className="w-full px-4 py-2 border rounded"
+              value={registerData.email}
+              onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
             />
             <input
               type="password"
               placeholder="Password"
               className="w-full px-4 py-2 border rounded"
+              value={registerData.password}
+              onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
             />
+
+            {registerError && <p className="text-red-500 text-sm">{registerError}</p>}
+            {registerSuccess && <p className="text-green-600 text-sm">{registerSuccess}</p>}
+
             <button
-              onClick={() => alert('Register logic here')}
+              onClick={handleRegister}
               className="cursor-pointer w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
             >
               Register
             </button>
+
             <button
               onClick={() => setIsRegister(false)}
               className="w-full text-sm text-gray-500 hover:underline"
