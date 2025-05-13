@@ -104,6 +104,10 @@ export default function LoginPage() {
             >
               Register
             </button>
+
+            <p className="text-sm text-red-500">
+              Please be patient, as I'm currently using a free API instance. Due to inactivity, it may experience delays of 50 seconds or more when making requests. Thank you for your understanding!
+            </p>
           </div>
         )}
 
