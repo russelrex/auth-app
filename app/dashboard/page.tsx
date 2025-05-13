@@ -81,6 +81,9 @@ export default function DashboardPage() {
         <h2 className="text-xl font-semibold text-center mb-2">
           Go High Level Form
         </h2>
+         <p className="font-bold text-center">
+          React Hook Form
+        </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input
             type="text"
