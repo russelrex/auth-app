@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn, useSession, signOut } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,9 @@ import { API_BASE_URL } from '../utils/config';
 
 export default function LoginPage() {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSignInEmailPassword, setIsSignInEmailPassword] = useState<boolean>(false);
   const [isRegister, setIsRegister] = useState<boolean>(false);
@@ -48,8 +50,8 @@ export default function LoginPage() {
 
       setRegisterSuccess('Registration successful! You can now sign in.');
       setIsRegister(true);
-    } catch (err: any) {
-      setRegisterError(err.message);
+    } catch (err) {
+      setRegisterError('Registration failed');
     }
   };
 
