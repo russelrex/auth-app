@@ -50,6 +50,7 @@ export default function LoginPage() {
 
       setRegisterSuccess('Registration successful! You can now sign in.');
       setIsRegister(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setRegisterError('Registration failed');
     }
